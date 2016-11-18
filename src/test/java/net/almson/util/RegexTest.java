@@ -18,19 +18,45 @@ public class RegexTest {
         
             test (reluctantly (between (1, 3, not (charclass (' ')))) + followedBy (oneOrMore(" "))
                  ,"A test of many words"
-                 ,"A", "test", "of", "many", "words");
+                 ,"A", "est", "of", "any");
+        }
+    
+      @Test public void
+    example2 () {
+        
+            test (text ("\n")
+                 ,"A test\nof many\nwords"
+                 ,"\n", "\n");
+        }
+    
+      @Test public void
+    example3 () {
+        
+            test (not (charclassIntersection ("\\s", charclass (' ')))
+                 ," \na"
+                 ,"\n", "a");
         }
     
       @Test public void
     charclassMetacharacters() {
         
-            test ( charclass ('^', '.', '[', ']', '-', '+')
-                 , "^+[.]-"
-                 , "^", "+", "[", ".", "]", "-" );
+            test ( charclass ('^', '.', '[', ']', '-', '+', '\\')
+                 , "^+\\[.]-"
+                 , "^", "+", "\\", "[", ".", "]", "-" );
             
             test ( charclassUnion (text ("^.[]-+"))
                  , "^+[.]-"
                  , "^", "+", "[", ".", "]", "-" );
+        }
+    
+      @Test public void
+    charclass2() {
+        
+            test(charclassUnion 
+                    (charclass ('"', '*', '?', '/', '|', '<')
+                    ,charclassRange ('\0', '\u0020'))
+                ,"^+\"*[.\0]?\r\n-\\"
+                ,"\"", "*", "\0", "?", "\r", "\n");
         }
     
       private void
@@ -39,7 +65,7 @@ public class RegexTest {
             Pattern pattern = Pattern.compile (regex);
             Matcher matcher = pattern.matcher (string);
             
-            ArrayList matches = new ArrayList<>();
+            ArrayList matches = new ArrayList();
             while (matcher.find ())
                 matches.add (matcher.group ());
             

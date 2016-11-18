@@ -2,22 +2,43 @@ package net.almson.util;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import static java.lang.String.format;
+import java.util.Objects;
 
 /**
- * A utility class for writing readable regular expressions. 
- * Unlike <tt>Hamcrest reg</tt>, it doesn't try to fit regexes into an object-oriented hole. 
- * This library is based on string operations, and is easy to use for all, some, or parts of your regular expressions.
+ * This class is a simple library for writing readable regular expressions. 
+ * 
+ * <p> The goals of this library are:
+ *   <ul>
+ *     <li> Good documentation </li>
+ *     <li> Descriptive syntax </li>
+ *     <li> Support of all Java 8 regex features </li>
+ *   </ul>
+ * 
+ * <p> The following are *not* goals:
+ *   <ul>
+ *     <li> Type safety </li>
+ *     <li> Brevity (normal regular expressions are very compact--that's why they're hard to read) </li>
+ *     <li> Allow user to avoid learning regular expressions (sorry, you're still writing and reading regexes) </li>
+ *   </ul>
+ * 
+ * <p> This library is based on string operations, 
+ * and is easy to use for all, some, or parts of your regular expressions. 
+ * An effort is being made to write a compiler plugin based on the Checker Framework to add type-safety 
+ * (for things like character classes, literals, and the possessive/reluctant qualifiers) 
+ * without using a class hierarchy.
+ * 
+ * <p> This library is compiled against Java 5, although it supports all Java 8 regex features, 
+ * such as named capturing groups.
  * 
  * <p> The documentation for the library doesn't replace knowledge of how to write regular expressions.
  * However, this library succeeds in making your regular expressions easy to read by those who are not very familiar
- * with them.
- * 
- * <p> For the best reference on Java regular expressions, see {@link Pattern}.
+ * with them. For the best reference on Java regular expressions, see {@link Pattern}.
  * 
  * @author Aleksandr Dubinsky
  */
-public class Regex {
+public final class Regex {
+    
+    private Regex() { throw new AssertionError (); }
 
     /****************************************************************************************************************
      *                                          Embedded flag expressions                                           *
@@ -28,7 +49,8 @@ public class Regex {
     
     /** Embedded flag turns on {@link Pattern#UNIX_LINES}, which enables Unix lines mode.
      * <p> In this mode, only the <tt>'\n'</tt> character is recognized as a line terminator.
-     * This flag affects the behavior of {@code ANY_CHARACTER}, {@code START_BOUNDARY} (if {@code CONFIG_MULTILINE} is enabled), 
+     * This flag affects the behavior of {@code ANY_CHARACTER}, 
+     * {@code START_BOUNDARY} (if {@code CONFIG_MULTILINE} is enabled), 
      * {@code END_BOUNDARY} (if {@code CONFIG_MULTILINE} is enabled), 
      * and {@code INPUT_END_BOUNDARY_SANS_TERMINATOR}. */
     static public final String CONFIG_UNIX_LINES = "(?d)";
@@ -52,7 +74,8 @@ public class Regex {
     static public final String CONFIG_MULTILINE = "(?m)";
     
     /** Embedded flag turns on {@link Pattern#DOTALL}, which enables dotall mode.
-     * <p> In dotall mode, {@link #ANY_CHARACTER} (ie, the expression <tt>.</tt>) matches any character, including a line terminator.
+     * <p> In dotall mode, {@link #ANY_CHARACTER} (ie, the expression <tt>.</tt>) matches any character, 
+     * including a line terminator.
      * By default this character class does not match line terminators.
      * <p> The Unicode characters {@code \\u0085}, {@code \\u2028}, and {@code \\u2029} are considered line terminators 
      * regardless whether {@code CONFIG_UNICODE_CHARACTER_CLASSES} is set. */
@@ -75,7 +98,8 @@ public class Regex {
      * <p> When this flag is specified then the (US-ASCII only) <i>Predefined character classes</i> and 
      * <i>POSIX character classes</i> are in conformance with<a href="http://www.unicode.org/reports/tr18/">
      * <i>Unicode Technical Standard #18: Unicode Regular Expression</i></a> <i>Annex C: Compatibility Properties</i>.
-     * <p> The following character classes that are understood by the Java regular expression engine are affected by this flag.
+     * <p> The following character classes that are understood by the Java regular expression engine are affected 
+     * by this flag.
      * <table border="0" cellpadding="1" cellspacing="0" summary="predefined and posix character classes in Unicode mode">
      * <tr align="left">
      *   <th align="left" id="predef_classes">Class</th>
@@ -169,15 +193,14 @@ public class Regex {
      *                                                 Literals                                                     *
      ****************************************************************************************************************/
     
-    /** Matches the specified string, automatically escaping any characters that would otherwise be interpreted as metcharacters.
+    /** Matches the specified string, automatically escaping any characters that would otherwise be interpreted 
+     * as metacharacters.
      * @return Result of {@link Pattern#quote Pattern.quote(string)} */
-    public static String text(String string) { return Pattern.quote(string); }
-    /** Matches the specified Unicode character.
-     * @return {@link "\\u" + Integer.toHexString (character)} */
-    public static String text(char character) { return "\\x{" + Integer.toHexString (character) + "}"; }
+    @Expr public static String text (@Literal String string) { return Pattern.quote(string); }
+    
     /** Matches the specified Unicode codepoint.
      * @return {@code "\\x{" + Integer.toHexString (codepoint) + "}"} */
-    public static String text(int codepoint) { return "\\x{" + Integer.toHexString (codepoint) + "}"; }
+    @Expr public static String text (int codepoint) { return "\\x{" + Integer.toHexString (codepoint) + "}"; }
     
     
     /****************************************************************************************************************
@@ -185,45 +208,55 @@ public class Regex {
      ****************************************************************************************************************/
     
     /** Does not match any input sequence. */
-    static public final String DO_NOT_MATCH = "$a";
+    @Expr static public final String DO_NOT_MATCH = "$a";
     
     
-    /** Any character (may or may not match line terminators). 
+    /** Character class matching any character (may or may not match line terminators). 
      * Is affected by {@link #CONFIG_DOTALL CONFIG_DOTALL} and {@link #CONFIG_UNIX_LINES CONFIG_UNIX_LINES}. */
-    static public final String ANY_CHARACTER = ".";
+    @Charclass static public final String ANY_CHARACTER = ".";
     
-    /** Any Arabic numeral. */
-    static public final String DIGIT = "[0-9]";
+    /** Character class matching any Arabic numeral. */
+    @Charclass static public final String DIGIT = "[0-9]";
     
-    /** Any Unicode letter. */
-    static public final String LETTER = "\\p{L}";
+    /** Character class matching any Unicode letter. */
+    @Charclass static public final String LETTER = "\\p{L}";
     
-    /** Any Unicode whitespace character, as well as {@code ZERO WIDTH SPACE}, {@code WORD JOINER}, and {@code ZERO WIDTH NON-BREAKING SPACE}.
-     * @see <a href="https://en.wikipedia.org/wiki/Whitespace_character">Wikipedia</a> */
-    static public final String WHITESPACE = "[\\p{IsWhite_Space}\\u200B\\u2060\\uFFEF]";
+    /** 
+     * Character class matching any Unicode whitespace character, 
+     * as well as {@code ZERO WIDTH SPACE}, {@code WORD JOINER}, and {@code ZERO WIDTH NON-BREAKING SPACE}.
+     * @see <a href="https://en.wikipedia.org/wiki/Whitespace_character">Wikipedia</a> 
+     */
+    @Charclass static public final String WHITESPACE = "[\\p{IsWhite_Space}\\u200B\\u2060\\uFFEF]";
     
-    /** Any Unicode linebreak sequence. Is equivalent to:
+    /** 
+     * Any Unicode linebreak sequence. Is equivalent to:
      * <blockquote><pre>{@code either ("\r\n", VERTICAL_WHITESPACE)}</pre></blockquote>
-     * <p>Similar to {@link #VERTICAL_WHITESPACE VERTICAL_WHITESPACE}, but captures Windows linebreaks in a single group.
-     * However, {@code NEWLINE} is not a character class and cannot participate in character class operations. */
-    static public final String NEWLINE = "\\R";
+     * <p>Similar to {@link #VERTICAL_WHITESPACE VERTICAL_WHITESPACE}, 
+     * but captures Windows line breaks in a single group.
+     * However, {@code NEWLINE} is not a character class and cannot participate in character class operations.
+     */
+    @Expr static public final String NEWLINE = "\\R";
     
-    /** Any Unicode vertical whitespace character. 
+    /** 
+     * Character class matching any Unicode vertical whitespace character. 
      * <p> Equivalent to: <blockquote>{@code charclass ("\n\x0B\f\r\\u0085\\u2028\\u2029")}</blockquote>
      * <p> Similar to {@link #NEWLINE NEWLINE}, but is a character class and can participate in character class 
-     * operations like intersection, subtraction, and negation.*/
-    static public final String VERTICAL_WHITESPACE = "\\v";
+     * operations like intersection, subtraction, and negation.
+     */
+    @Charclass static public final String VERTICAL_WHITESPACE = "\\v";
     
-    /** Any Unicode horizontal whitespace, as well as {@code ZERO WIDTH SPACE}, {@code WORD JOINER}, and {@code ZERO WIDTH NON-BREAKING SPACE}. */
-//    static public final String HORIZONTAL_WHITESPACE = charclassSubtraction (WHITESPACE, VERTICAL_WHITESPACE); // Does not display in javadoc
-    static public final String HORIZONTAL_WHITESPACE = "[" + WHITESPACE + "&&[^" + VERTICAL_WHITESPACE + "]]";
+    /** 
+     * Character class matching any Unicode horizontal whitespace, 
+     * as well as {@code ZERO WIDTH SPACE}, {@code WORD JOINER}, and {@code ZERO WIDTH NON-BREAKING SPACE}. 
+     */
+    @Charclass static public final String HORIZONTAL_WHITESPACE = "[" + WHITESPACE + "&&[^" + VERTICAL_WHITESPACE + "]]";
     
     
     /** A built-in, named character class.
      * There is no single list of built-in named character classes, 
      * but examples are given and explained throughout {@link Pattern Pattern javadocs}.
      * @return A character class. Literally: {@code "\\p{" + name + "}"}  */
-    public static String charclass (String name) { return "\\p{" + name + "}"; }
+    @Charclass public static String charclassFromName (@Literal String name) { return "\\p{" + name + "}"; }
     
     /** Any character possessing the Unicode binary property. 
      * The supported binary properties by <code>Pattern</code> are
@@ -245,21 +278,24 @@ public class Regex {
      * </ul>
      * @param name Name of a supported Unicode binary property.
      * @return A character class. Literally: {@code "\\p{Is" + name + "}"} */
-    static public final String charclassFromUnicodeProperty (String name) { return Regex.charclass ("Is" + name); }
+    @Charclass static public final String charclassFromUnicodeProperty (@Literal String name) { 
+            return Regex.charclassFromName ("Is" + name); }
     
     /** Any character in the Unicode script.
      * <p> The script names supported by <code>Pattern</code> are the valid script names accepted and defined by 
      * {@link java.lang.Character.UnicodeScript#forName(String) UnicodeScript.forName}.
      * @param name Name of a Unicode script as defined in the Unicode standard.
      * @return A character class. Literally: {@code "\\p{Is" + name + "}"} */
-    static public final String charclassFromUnicodeScript (String name) { return Regex.charclass ("Is" + name); }
+    @Charclass static public final String charclassFromUnicodeScript (@Literal String name) { 
+            return Regex.charclassFromName ("Is" + name); }
     
     /** Any single character in the Unicode block.
      * <p> The block names supported by <code>Pattern</code> are the valid block names accepted and defined by
      * {@link java.lang.Character.UnicodeBlock#forName(String) UnicodeBlock.forName}.
      * @param name Name of a Unicode block as defined in the Unicode standard.
      * @return A character class. Literally: {@code "\\p{In" + name + "}"} */
-    static public final String charclassFromUnicodeBlock (String name) { return Regex.charclass ("In" + name); }
+    @Charclass static public final String charclassFromUnicodeBlock (@Literal String name) { 
+            return Regex.charclassFromName ("In" + name); }
     
     /** Any character in the Unicode category.
      * <p> The supported categories are those of <a href="http://www.unicode.org/unicode/standard/standard.html">
@@ -267,81 +303,151 @@ public class Regex {
      * The category names are those defined in the Standard, both normative and informative.
      * @param name Name of a Unicode category as defined in the Unicode standard.
      * @return A character class. Literally: {@code "\\p{" + name + "}"} */
-    static public final String charclassFromUnicodeCategory (String name) { return Regex.charclass ("In" + name); }
+    @Charclass static public final String charclassFromUnicodeCategory (@Literal String name) { 
+            return Regex.charclassFromName ("In" + name); }
     
     
     /****************************************************************************************************************
      *                                               Character classes                                              *
      ****************************************************************************************************************/
     
-    /** Matches any of the specified characters.
-     * <p> Example to match 'a' or a digit: <blockquote>{@code charclass (text ("a"), DIGIT)}</blockquote>
-     * <p> Example to match any of 'a', '+', or '^': <blockquote>{@code charclass (text ("a"), text ('+'), text ('^'))}</blockquote>
-     * <p> Example to match any of 'a', 'b', or 'c': <blockquote>{@code charclass ("a-c")}</blockquote>
-     * @param characters characters to match
-     * @return A character class. Literally: {@code "[" + String.join ("", elements) + "]"} */
-    public static String charclass (char... characters) {
+      /** 
+       * Matches any of the specified characters,
+       * automatically escaping any characters that would otherwise be interpreted as metacharacters.
+       * 
+       * <p> Example to match any of {@code '\\', '+', '\n', '\0',} or {@code '^'}: 
+       *      <blockquote>{@code charclass ('\\', '+', '\n', '\0', '^')}</blockquote>
+       * 
+       * @param characters characters to match
+       * @return A character class. Literally: {@code "[" + String.join ("", escape (elements)) + "]"} 
+       */
+      @Charclass public static String 
+    charclass (char... characters) {
+        
+            Objects.requireNonNull (characters);
             
-            String retval = "[";
-            for (char character : characters)
+            StringBuilder sb = new StringBuilder ();
+            
+            sb.append ("[");
+            for (char character: characters)
             {
-                if (character == '-')
-                    retval += "\\-";
-                else if (character == '+')
-                    retval += "\\+";
-                else if (character == '^')
-                    retval += "\\^";
-                else if (character == '[')
-                    retval += "\\[";
-                else if (character == ']')
-                    retval += "\\]";
-                else
-                    retval += character;
+                sb.append (Regex.escapeCharclassMetacharacter (character));
             }
-            return retval + "]"; 
-        }
-    
-    /** Matches any character in the specified range.
-     * @return A character class. Literally: {@code "[" + from + "-" + toInclusive + "]"} */
-    public static String charclassRange (char from, char toInclusive) { 
-            assert from <= toInclusive : "from must be less than or equal to toInclusive"; 
-            return format ("[%s-%s]", from, toInclusive); 
-        }
-    
-    /** Matches any characters that are not in the specified character class.
-     * Same as {@link #not}.
-     * <p> Due to a seeming bug in the JVM when it encounters {@code [^[ ... ]]}, we must use {@code [^\\uFFFF[ ... ]]}
-     * which is effecively the same as {@code charclassComplement (charclassUnion (charclass ('\\uFFFF'), ...))}
-     * and should not affect the results of the match unless the character {@code \\uFFFF} is being sought.
-     * @param characterClass A character class
-     * @return A character class. Literally: {@code "[^\\uFFFF" + characterClass + "]"} */
-    public static String charclassComplement (String characterClass) {
+            sb.append ("]");
             
-            return format ("[^\\uFFFF%s]", characterClass); }
+            return sb.toString();
+        }
     
-    /** Matches any characters that are not in the specified character class.
-     * Same as {@link #charclassComplement}.
-     * <p> Due to a seeming bug in the JVM when it encounters {@code [^[ ... ]]}, we must use {@code [^\\uFFFF[ ... ]]}
-     * which is effecively the same as {@code charclassComplement (charclassUnion (charclass ('\\uFFFF'), ...))}
-     * and should not affect the results of the match unless the character {@code \\uFFFF} is being sought.
-     * @param characterClass A character class
-     * @return A character class. Literally: {@code "[^0xFFFF" + characterClass + "]"} */
-    public static String not (String characterClass) { return charclassComplement (characterClass); }
+      /** 
+       * Matches any character in the specified range.
+       * 
+       * @return A character class. Literally: {@code "[" + from + "-" + toInclusive + "]"} 
+       */
+      @Charclass public static String 
+    charclassRange (char from, char toInclusive) {
+        
+            assert from <= toInclusive : "from must be less than or equal to toInclusive"; 
+            return "[" + escapeCharclassMetacharacter (from) + "-" + escapeCharclassMetacharacter (toInclusive) + "]";
+        }
     
-    /** Matches any of the characters that are in either {@code charclass1} and/or {@code charclass2}; ie, creates a character class grouping.
-     * <p> Example to match 'a' or a digit: <blockquote>{@code charclassUnion (charclass ('a'), DIGIT)}</blockquote>
-     * <p> Example to match any of 'a', '+', or '^': <blockquote>{@code charclassUnion (charclass ('a', '+'), charclass ('^'))}</blockquote>
-     * @param charclasses character classes.
-     * @return A character class. Literally: {@code "[" + String.join ("", elements) + "]"} */
-    public static String charclassUnion (String... charclasses) { return format ("[%s]", String.join ("", charclasses)); }
+      /** 
+       * Matches any characters that are not in the specified character class. 
+       * Same as {@link #not}.
+       * 
+       * <p> Unlike the normal behavior of the {@code ^} metacharacter, 
+       * this method takes care to take the complement of the entire input character class, 
+       * distributing it across unions and intersections. Because there is no built-in operator that does this,
+       * this method uses De Morgan's laws to transform the regular expression.
+       * 
+       * <p> <b>Warning:</b> This method is experimental, because the transformation logic may contain bugs.
+       * 
+       * @param characterClass A character class
+       * @return A character class. 
+       */
+      @Charclass public static String 
+    charclassComplement (@Charclass String characterClass) {
+        
+            if (! characterClass.startsWith ("["))
+                characterClass = "[" + characterClass + "]";
+        
+            // Negate non-empty character classes
+            String searchPattern = notPrecededBy (text ("\\")) + text("[") + notFollowedBy (text("["));
+            characterClass = characterClass.replaceAll (searchPattern, replacementText ("[^"));
+            
+            // Remove double-negation
+            searchPattern = notPrecededBy (text ("\\")) + text("[^^");
+            characterClass = characterClass.replaceAll (searchPattern, replacementText ("["));
+            
+            // Transform intersection to union
+            searchPattern = notPrecededBy (text ("\\")) + text("&&[");
+            characterClass = characterClass.replaceAll (searchPattern, "placeholderb69351cd84c888ade1ae");
+            
+            // Transform union to intersection
+            searchPattern = notPrecededBy (either (START_BOUNDARY, text ("["), text ("\\"))) + text("[");
+            characterClass = characterClass.replaceAll (searchPattern, "&&[");
+            
+            // Finish transforming intersection to union
+            characterClass = characterClass.replace ("placeholderb69351cd84c888ade1ae", "[");
+        
+            return characterClass;
+        }
     
-    /** Matches any of the characters that are in both {@code charclass1} and {@code charclass2}.
-     * @return A character class. Literally: {@code "[" + class1 + "&&[" + class2 + "]]"} */
-    public static String charclassIntersection (String charclass1, String charclass2) { return format ("[%s&&[%s]]", charclass1, charclass2); }
+      /** 
+       * Matches any characters that are not in the specified character class.
+       * Same as {@link #charclassComplement}.
+       * 
+       * <p> Unlike the normal behavior of the {@code ^} metacharacter, 
+       * this method takes care to take the complement of the entire input character class, 
+       * distributing it across unions and intersections. Because there is no built-in operator that does this,
+       * this method uses De Morgan's laws to transform the regular expression.
+       * 
+       * <p> <b>Warning:</b> This method is experimental, because the transformation logic may contain bugs.
+       * 
+       * @param characterClass A character class
+       * @return A character class. 
+       */
+      @Charclass public static String 
+    not (@Charclass String characterClass) { return charclassComplement (characterClass); }
     
-    /** Matches any of the characters in {@code classclass1} but not any which are in {@code charclass2}.
-     * @return A character class. Literally: {@code "[" + class1 + "&&[^" + class2 + "]]"} */
-    public static String charclassSubtraction (String charclass1, String charclass2) { return charclassIntersection (charclass1, not (charclass2)); }
+      /** 
+       * Matches any of the characters that are in either of {@code charclass1} or {@code charclass2}; 
+       * ie, creates a character class grouping.
+       * 
+       * <p> Example to match 'a' or a digit: <blockquote>{@code charclassUnion (charclass ('a'), DIGIT)}</blockquote>
+       * 
+       * <p> Example to match any of 'a', '+', or '^': 
+       *     <blockquote>{@code charclassUnion (charclass ('a', '+'), charclass ('^'))}</blockquote>
+       * 
+       * @param charclasses character classes.
+       * @return A character class. Literally: {@code "[" + String.join ("", elements) + "]"} 
+       */
+      @Charclass public static String 
+    charclassUnion (@Charclass String... charclasses) { 
+        
+            return "[" + join (charclasses) + "]";
+        }
+    
+      /** 
+       * Matches any of the characters that are in both {@code charclass1} and {@code charclass2}.
+       * 
+       * @return A character class. Literally: {@code "[" + class1 + "&&[" + class2 + "]]"} 
+       */
+      @Charclass public static String 
+    charclassIntersection (@Charclass String charclass1, @Charclass String charclass2) { 
+        
+            return "[" + charclass1 + "&&[" + charclass2 + "]]"; 
+        }
+    
+      /** 
+       * Matches any of the characters in {@code classclass1} but not any which are in {@code charclass2}.
+       * 
+       * @return A character class. Literally: {@code "[" + class1 + "&&[^" + class2 + "]]"} 
+       */
+      @Charclass public static String 
+    charclassSubtraction (@Charclass String charclass1, @Charclass String charclass2) { 
+        
+            return charclassIntersection (charclass1, not (charclass2)); 
+        }
     
     
     /****************************************************************************************************************
@@ -374,36 +480,44 @@ public class Regex {
     
     /** Matches once or not at all.
      * @return {@code "(" + "pattern + ")?" } */
-    public static String optional (String pattern) { return format("(%s)?", pattern); }
+    public static @DuplicationExpr String optional (@Expr String pattern) { return noncapturingGroup (pattern) + "?"; }
+    
     /** Matches zero or more times.
      * @return {@code "(" + "pattern + ")*" } */
-    public static String zeroOrMore(String pattern) { return format( "(%s)*", pattern ); }
+    public static @DuplicationExpr String zeroOrMore(@Expr String pattern) { return noncapturingGroup (pattern) + "*"; }
+    
     /** Matches one or more times.
      * @return {@code "(" + "pattern + ")+" } */
-    public static String oneOrMore(String pattern) { return format( "(%s)+", pattern ); }
+    public static @DuplicationExpr String oneOrMore(@Expr String pattern) { return noncapturingGroup (pattern) + "+"; }
+    
     /** Matches exactly <i>n</i> times.
      * @return {@code "(" + "pattern + "){" + times  + "}" } */
-    public static String exactly (int times, String pattern) { return format( "(%s){%d}", pattern, times ); }
+    public static @DuplicationExpr String exactly (int times, @Expr String pattern) { 
+            return noncapturingGroup (pattern) + "{" + times + "}"; }
+    
     /** Matches at least <i>n</i> times.
      * @return {@code "(" + "pattern + "){" + times  + ",}" } */
-    public static String atLeast (int times, String pattern) { return format ("(%s){%d,}", pattern, times); }
+    public static @DuplicationExpr String atLeast (int times, @Expr String pattern) { 
+            return noncapturingGroup (pattern) + "{" + times + ",}"; }
+    
     /** Matches at least <i>min</i> but not more than <i>maxInclusive</i> times.
      * @return {@code "(" + "pattern + "){" + from + "," + toInclusive  + "}" } */
-    public static String between (int min, int maxInclusive, String pattern) { return format( "(%s){%d,%d}", pattern, min, maxInclusive ); }
+    public static @DuplicationExpr String between (int min, int maxInclusive, @Expr String pattern) { 
+            return noncapturingGroup (pattern) + "{" + min + "," + maxInclusive + "}"; }
 
     /** Modifies the quantifier to be reluctant. A reluctant quantifier will try not to match the input if possible,
      * that is if a different way of matching the input exists. 
-     * The input to this method must be one of the quantifiers (optional, zeroOrMore, oneOrMore, atLeast, exactly, between).
+     * The input to this method must be one of the quantifiers 
+     * (optional, zeroOrMore, oneOrMore, atLeast, exactly, between).
      * @return {@code pattern + "?"} */
-    public static String reluctantly (String pattern) { return format( "%s?", pattern ); }
+    public static @Expr String reluctantly (@DuplicationExpr String pattern) { return pattern + "?"; }
+    
     /** Modifies the quantifier to be possessive. A possessive quantifier will try to match the input,
      * and won't backtrack to attempt a different way of matching the input. 
-     * The input to this method must be one of the quantifiers (optional, zeroOrMore, oneOrMore, atLeast, exactly, between).
+     * The input to this method must be one of the quantifiers 
+     * (optional, zeroOrMore, oneOrMore, atLeast, exactly, between).
      * @return {@code pattern + "+"} */
-    public static String possessively (String pattern) { return format( "%s+", pattern ); }
-    
-    
-    public static String optionalCombine (String a, String b) { return either( a + b, a, b ); }
+    public static @Expr String possessively (@DuplicationExpr String pattern) { return pattern + "+"; }
     
     
     /****************************************************************************************************************
@@ -414,26 +528,24 @@ public class Regex {
      * Since this basic operation is implemented as simple string concatenation, 
      * most users do not use this method in favor of concatenation.
      * @return {@code String.join ("", regexes)} */
-    public static String sequence (String... regexes) { return String.join ("", regexes); }
+    public static @Expr String sequence (@Expr String... regexes) { return join (regexes); }
     
     /** Matches any one of several regular expressions.
-     * @return {@code "(" + String.join ("|", regexes) + ")"} */
-    public static String either (String... regexes) { return format ("(%s)", String.join ("|", regexes)); }
+     * @return {@code String.join ("|", regexes)} */
+    public static @Expr String either (@Expr String... regexes) { return noncapturingGroup (join (regexes, '|')); }
     
-    /** A group acts like parentheses in a regex expression, affecting evaluation order.
-     * In addition, groups "capture" the matched text and make it available via {@link Matcher#group(int)}.
-     * However, tracking indeces can be problematic, and if capturing is desired, 
-     * it is recommended to use {@link #namedGroup named groups} instead.
-     * @return {@code "(" + regex + ")"} 
-     * @see Pattern Pattern section <i>Group and capturing</i> */
-    public static String group (String regex) { return format ("(%s)", regex); }
+    /**
+     * Matches any or both of two regular expressions.
+     * @return {@code either (sequence (a, b), a, b)}
+     */
+    public static @Expr String eitherOr (@Expr String a, @Expr String b) { return either (sequence (a, b), a, b); }
     
     
     /****************************************************************************************************************
      *                                              Back references                                                 *
      ****************************************************************************************************************/
     
-//    public static String backreference (int i) { return "\\" + i; }
+    public static @Expr String backreference (int i) { return "\\" + i; }
 //    
 //    public static String backreference (String name) { return "(\\k" + name+ ")"; }
     
@@ -446,66 +558,153 @@ public class Regex {
      * {@code Matcher#appendReplacement}, and {@code Matcher.replaceFirst}.
      * @return {@code Matcher.quoteReplacement (text)}
      * @see Matcher#appendReplacement */
-    public static String replacementText (String text) { return Matcher.quoteReplacement (text); }
+    public static @ReplacementExpr String replacementText (@Literal String text) { 
+            return Matcher.quoteReplacement (text); }
     
     /** A reference to a captured group, used with methods {@code String.replaceAll}, {@code Matcher.replaceAll}, 
      * {@code Matcher#appendReplacement}, and {@code Matcher.replaceFirst}.
      * @return {@code "$" + i}
      * @see Matcher#appendReplacement */
-    public static String replacementBackreference (int i) { return "$" + i; }
+    public static @ReplacementExpr String replacementBackreference (int i) { return "$" + i; }
     
     /** A reference to a named captured group, used with methods {@code String.replaceAll}, {@code Matcher.replaceAll}, 
      * {@code Matcher#appendReplacement}, and {@code Matcher.replaceFirst}.
      * @return {@code "${" + name + "}"}
      * @see Matcher#appendReplacement */
-    public static String replacementBackreference (String name) { return "${" + name + "}"; }
+    public static @ReplacementExpr String replacementBackreference (@Literal String name) { return "${" + name + "}"; }
     
     
     /****************************************************************************************************************
-     *                           Special constructs (named-capturing and non-capturing)                             *
+     *                                                   Groups                                                     *
      ****************************************************************************************************************/
     
-    /** A named group acts like parentheses in a regex expression, while also "capturing" the matched text
-     * and making it available via {@link Matcher#group(java.lang.String)}.
-     * @return {@code "(?<" + name + ">" + regex + ")"}
-     * @see Pattern Pattern section <i>Groups and capturing</i> */
-    public static String namedGroup (String name, String regex) { return format ("(?<%s>%s)", name, regex); }
+      /** A group acts like parentheses in a regex expression, affecting evaluation order.
+       * In addition, groups "capture" the matched text and make it available via {@link Matcher#group(int)}.
+       * However, tracking indeces can be problematic, and if capturing is desired, 
+       * it is recommended to use {@link #namedGroup named groups} instead.
+       * @return {@code "(" + regex + ")"} 
+       * @see Pattern Pattern section <i>Group and capturing</i> */
+      public static @Expr String 
+    group (@Expr String regex) { return "(" + regex + ")"; }
     
-    /** A non-capturing group acts like parentheses in a regex expression, 
-     * while not capturing text and not counting towards the group count.
-     * @return {@code "(?:" + regex + ")"} */
-    public static String noncapturingGroup (String regex) { return format ("(?:%s)", regex); }
+      /** 
+       * A named group acts like parentheses in a regex expression, while also "capturing" the matched text
+       * and making it available via {@link Matcher#group(java.lang.String)}.
+       * 
+       * <p> Requires Java 7.
+       * 
+       * @return {@code "(?<" + name + ">" + regex + ")"}
+       * @see Pattern Pattern section <i>Groups and capturing</i> 
+       */
+      public static @Expr String 
+    namedGroup (@Literal String name, @Expr String regex) { return "(?<" + name + ">" + regex + ")"; }
+    
+      /** 
+       * A non-capturing group acts like parentheses in a regex expression, 
+       * while not capturing text and not counting towards the group count.
+       * 
+       * @return {@code "(?:" + regex + ")"} 
+       */
+      public static @Expr String 
+    noncapturingGroup (@Expr String regex) { return "(?:" + regex + ")"; }
+    
+    
+    /****************************************************************************************************************
+     *                                         Look-ahead and look-behind                                           *
+     ****************************************************************************************************************/
     
     /** Zero-width positive lookahead confirms that a pattern appears in the input sequence 
      * without consuming it or including it as part of the match.
      * @return {@code "(?=" + regex + ")"} */
-    public static String followedBy (String regex) { return format( "(?=%s)", regex ); }
+    public static @Expr String followedBy (@Expr String regex) { return "(?=" + regex + ")"; }
     
     /** Zero-width negative lookahead confirms that a pattern does not appear in the input sequence.
      * @return {@code "(?!" + regex + ")"} */
-    public static String notFollowedBy (String regex) { return format( "(?!%s)", regex ); }
+    public static @Expr String notFollowedBy (@Expr String regex) { return "(?!" + regex + ")"; }
     
     /** Zero-width positive lookbehind confirms that a pattern appears in the input sequence
      * without consuming it or including it as part of the match.
      * @return {@code "(?<=" + regex + ")"} */
-    public static String precededBy (String regex) { return format( "(?<=%s)", regex ); }
+    public static @Expr String precededBy (@Expr String regex) { return "(?<=" + regex + ")"; }
     
     /** Zero-width negative lookbehind confirms that a pattern does not appear in the input sequence.
      * @return {@code "(?<!" + regex + ")"} */
-    public static String notPrecededBy (String regex) { return format( "(?<!%s)", regex ); }
+    public static @Expr String notPrecededBy (@Expr String regex) { return "(?<!" + regex + ")"; }
     
     
     /****************************************************************************************************************
      *                                               Utility methods                                                *
      ****************************************************************************************************************/
     
-    /** Convert any named capturing groups into plain capturing groups. This method is useful when including
-     * a regular expression that contains named capturing groups in another regular expression where the possibility
-     * of name conflicts exists.
-     * @return {@code regex.replaceAll ( precededBy(text("(")) + text ("?<") + oneOrMore (charclass (LETTER, DIGIT)) + text (">") + followedBy(text(")")), "") } */
-    public static String stripNamedGroups(String regex) {
+      /** 
+       * Convert any named capturing groups into plain capturing groups. 
+       * This method is useful when including a regular expression that contains named capturing groups 
+       * in another regular expression where the possibility of name conflicts exists.
+       * @return {@code regex.replaceAll ( precededBy(text("(")) + text ("?<") + oneOrMore (charclass (LETTER, DIGIT)) 
+       *                + text (">") + followedBy(text(")")), "") } 
+       */
+      public static @Expr String 
+    stripNamedGroups (@Expr String regex) {
         
-            return regex.replaceAll (precededBy(text("(")) + text ("?<") + oneOrMore (charclassUnion (LETTER, DIGIT)) + text (">")
-                                    , ""); }
+            return regex.replaceAll 
+                    (precededBy(text("(")) + text ("?<") + oneOrMore (charclassUnion (LETTER, DIGIT)) + text (">")
+                    , ""); 
+        }
     
+    
+    /****************************************************************************************************************
+     *                                               Private methods                                                *
+     ****************************************************************************************************************/
+    
+      private static String 
+    escapeCharclassMetacharacter (char character) {
+        
+            switch (character) {
+                case '-':
+                    return "\\-";
+                case '^':
+                    return "\\^";
+                case '[':
+                    return "\\[";
+                case ']':
+                    return "\\]";
+                case '\\':
+                    return "\\\\";
+                default:
+                    return String.valueOf (character);
+            }
+        }
+    
+      private static String 
+    join (String[] elements) {
+        
+            Objects.requireNonNull (elements);
+            
+            StringBuilder sb = new StringBuilder ();
+            
+            for (CharSequence element: elements) 
+            {
+                sb.append(element);
+            }
+            
+            return sb.toString();
+        }
+    
+      private static String 
+    join (String[] elements, char delimiter) {
+        
+            Objects.requireNonNull (delimiter);
+            Objects.requireNonNull (elements);
+            
+            StringBuilder sb = new StringBuilder ();
+            
+            for (CharSequence element: elements) 
+            {
+                sb.append (element);
+                sb.append (delimiter);
+            }
+            sb.deleteCharAt (sb.length() - 1);
+            
+            return sb.toString();
+        }
 }
