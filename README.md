@@ -18,7 +18,7 @@ The following are *not* goals:
 
 The documentation for the library doesn't replace knowledge of how to write regular expressions.
 However, this library succeeds in making your regular expressions easy to read
-by those who do not have expert knowledge. For the best reference on Java regular expressions, see {@link Pattern}.
+by those who do not have expert knowledge. For the best reference on Java regular expressions, see [the java.util.regex.Pattern documentation](https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html).
 
 # Examples
 
@@ -50,14 +50,14 @@ becomes:
 
 becomes:
 
-	WORD_BOUNARY 
+	WORD_BOUNDARY 
 	+ namedGroup ("user", 
 			oneOrMore (charclassUnion (LETTER, DIGIT, charclass ('.', '_', '%', '+', '-'))))
 	+ text ("@")
 	+ namedGroup ("domain"
 			, oneOrMore (charclassUnion (LETTER, DIGIT, charclass ('.', '-')))
 			+ text (".")
-			+ atLeast (2, LETTER)
+			+ atLeast (2, LETTER))
 	+ WORD_BOUNDARY
 
 ### Select consecutive duplicates from a comma-delimited list
@@ -66,7 +66,7 @@ becomes:
 
 becomes:
 
-    precededBy (either (text (","), text ("^")))
+    precededBy (either (START_BOUNDARY, text (",")))
     + group (zeroOrMore (charclassComplement (charclass (','))))
     + oneOrMore (text (",") + backreference (1))
-    + followedBy (either (text (","), text ("$")))
+    + followedBy (either (text (","), END_BOUNDARY))

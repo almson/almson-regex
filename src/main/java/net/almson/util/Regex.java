@@ -221,6 +221,9 @@ public final class Regex {
     /** Character class matching any Unicode letter. */
     @Charclass static public final String LETTER = "\\p{L}";
     
+    /** Character class matching any Unicode punctuation. */
+    @Charclass static public final String PUNCTUATION = "\\p{IsPunctuation}";
+    
     /** 
      * Character class matching any Unicode whitespace character, 
      * as well as {@code ZERO WIDTH SPACE}, {@code WORD JOINER}, and {@code ZERO WIDTH NON-BREAKING SPACE}.
@@ -526,7 +529,7 @@ public final class Regex {
     
     /** Matches several regular expressions in order.
      * Since this basic operation is implemented as simple string concatenation, 
-     * most users do not use this method in favor of concatenation.
+     * most users do not use this method.
      * @return {@code String.join ("", regexes)} */
     public static @Expr String sequence (@Expr String... regexes) { return join (regexes); }
     
@@ -703,7 +706,8 @@ public final class Regex {
                 sb.append (element);
                 sb.append (delimiter);
             }
-            sb.deleteCharAt (sb.length() - 1);
+            if (sb.length() > 0)
+                sb.setLength (sb.length() - 1);
             
             return sb.toString();
         }
