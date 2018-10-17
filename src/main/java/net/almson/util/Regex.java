@@ -483,44 +483,44 @@ public final class Regex {
     
     /** Matches once or not at all.
      * @return {@code "(" + "pattern + ")?" } */
-    public static @DuplicationExpr String optional (@Expr String pattern) { return noncapturingGroup (pattern) + "?"; }
+    public static @QuantifierExpr String optional (@Expr String pattern) { return noncapturingGroup (pattern) + "?"; }
     
     /** Matches zero or more times.
      * @return {@code "(" + "pattern + ")*" } */
-    public static @DuplicationExpr String zeroOrMore(@Expr String pattern) { return noncapturingGroup (pattern) + "*"; }
+    public static @QuantifierExpr String zeroOrMore(@Expr String pattern) { return noncapturingGroup (pattern) + "*"; }
     
     /** Matches one or more times.
      * @return {@code "(" + "pattern + ")+" } */
-    public static @DuplicationExpr String oneOrMore(@Expr String pattern) { return noncapturingGroup (pattern) + "+"; }
+    public static @QuantifierExpr String oneOrMore(@Expr String pattern) { return noncapturingGroup (pattern) + "+"; }
     
     /** Matches exactly <i>n</i> times.
      * @return {@code "(" + "pattern + "){" + times  + "}" } */
-    public static @DuplicationExpr String exactly (int times, @Expr String pattern) { 
+    public static @QuantifierExpr String exactly (int times, @Expr String pattern) { 
             return noncapturingGroup (pattern) + "{" + times + "}"; }
     
     /** Matches at least <i>n</i> times.
      * @return {@code "(" + "pattern + "){" + times  + ",}" } */
-    public static @DuplicationExpr String atLeast (int times, @Expr String pattern) { 
+    public static @QuantifierExpr String atLeast (int times, @Expr String pattern) { 
             return noncapturingGroup (pattern) + "{" + times + ",}"; }
     
     /** Matches at least <i>min</i> but not more than <i>maxInclusive</i> times.
      * @return {@code "(" + "pattern + "){" + from + "," + toInclusive  + "}" } */
-    public static @DuplicationExpr String between (int min, int maxInclusive, @Expr String pattern) { 
+    public static @QuantifierExpr String between (int min, int maxInclusive, @Expr String pattern) { 
             return noncapturingGroup (pattern) + "{" + min + "," + maxInclusive + "}"; }
 
-    /** Modifies the quantifier to be reluctant. A reluctant quantifier will try not to match the input if possible,
-     * that is if a different way of matching the input exists. 
+    /** Modifies the quantifier to be reluctant. A reluctant quantifier will not try to match the input 
+     * if a different way of matching the input exists. 
      * The input to this method must be one of the quantifiers 
      * (optional, zeroOrMore, oneOrMore, atLeast, exactly, between).
      * @return {@code pattern + "?"} */
-    public static @Expr String reluctantly (@DuplicationExpr String pattern) { return pattern + "?"; }
+    public static @Expr String reluctantly (@QuantifierExpr String pattern) { return pattern + "?"; }
     
     /** Modifies the quantifier to be possessive. A possessive quantifier will try to match the input,
      * and won't backtrack to attempt a different way of matching the input. 
      * The input to this method must be one of the quantifiers 
      * (optional, zeroOrMore, oneOrMore, atLeast, exactly, between).
      * @return {@code pattern + "+"} */
-    public static @Expr String possessively (@DuplicationExpr String pattern) { return pattern + "+"; }
+    public static @Expr String possessively (@QuantifierExpr String pattern) { return pattern + "+"; }
     
     
     /****************************************************************************************************************

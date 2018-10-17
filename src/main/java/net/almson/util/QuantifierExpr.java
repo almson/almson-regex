@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
 @Target ({ElementType.TYPE_USE})
 @Retention (RetentionPolicy.CLASS)
 @Expr
-@interface DuplicationExpr {
+@interface QuantifierExpr {
     
 }
