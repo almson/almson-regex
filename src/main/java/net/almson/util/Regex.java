@@ -413,15 +413,14 @@ public final class Regex {
     not (@Charclass String characterClass) { return charclassComplement (characterClass); }
     
       /** 
-       * Matches any of the characters that are in either of {@code charclass1} or {@code charclass2}; 
-       * ie, creates a character class grouping.
+       * Matches any of the characters that are in any of the specified character classes.
        * 
        * <p> Example to match 'a' or a digit: <blockquote>{@code charclassUnion (charclass ('a'), DIGIT)}</blockquote>
        * 
        * <p> Example to match any of 'a', '+', or '^': 
        *     <blockquote>{@code charclassUnion (charclass ('a', '+'), charclass ('^'))}</blockquote>
        * 
-       * @param charclasses character classes.
+       * @param charclasses character classes to match
        * @return A character class. Literally: {@code "[" + String.join ("", elements) + "]"} 
        */
       @Charclass public static String 
