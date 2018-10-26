@@ -219,7 +219,13 @@ public final class Regex {
     @Charclass static public final String DIGIT = "[0-9]";
     
     /** Character class matching any Unicode letter. */
-    @Charclass static public final String LETTER = "\\p{L}";
+    @Charclass static public final String LETTER = charclassFromUnicodeCategory ("L");
+    
+    /** Character class matching any Unicode uppercase letter. */
+    @Charclass static public final String UPPERCASE_LETTER = charclassFromUnicodeCategory ("Lu");
+    
+    /** Character class matching any Unicode lowercase letter. */
+    @Charclass static public final String LOWERCASE_LETTER = charclassFromUnicodeCategory ("Ll");
     
     /** Character class matching any Unicode punctuation. */
     @Charclass static public final String PUNCTUATION = "\\p{IsPunctuation}";

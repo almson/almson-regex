@@ -62,7 +62,7 @@ public class RegexTest {
       @Test public void
     unicodeLowercaseLetter() {
         
-            test (charclassFromUnicodeCategory("Ll")
+            test (LOWERCASE_LETTER
                 , "HeLlo"
                 , "e", "l", "o");
         }
