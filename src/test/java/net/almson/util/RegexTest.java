@@ -60,6 +60,14 @@ public class RegexTest {
         }
     
       @Test public void
+    unicodeLowercaseLetter() {
+        
+            test (charclassFromUnicodeCategory("Ll")
+                , "HeLlo"
+                , "e", "l", "o");
+        }
+    
+      @Test public void
     exampleWhitespace() {
         
             test (either (START_BOUNDARY + oneOrMore (HORIZONTAL_WHITESPACE)

@@ -307,7 +307,7 @@ public final class Regex {
      * @param name Name of a Unicode category as defined in the Unicode standard.
      * @return A character class. Literally: {@code "\\p{" + name + "}"} */
     @Charclass static public final String charclassFromUnicodeCategory (@Literal String name) { 
-            return Regex.charclassFromName ("In" + name); }
+            return Regex.charclassFromName (name); }
     
     
     /****************************************************************************************************************
