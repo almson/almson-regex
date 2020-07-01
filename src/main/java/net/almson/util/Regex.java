@@ -57,7 +57,7 @@ public final class Regex {
     
     /** Embedded flag turns on {@link Pattern#MULTILINE}, which enables case-insensitive matching.
      * <p> By default, case-insensitive matching assumes that only characters in the US-ASCII charset are being matched.
-     * Unicode-aware case-insensitive matching can be enabled by specifying the {@link #UNICODE_CASE} flag in 
+     * Unicode-aware case-insensitive matching can be enabled by specifying the {@link #CONFIG_UNICODE_CASE} flag in 
      * conjunction with this flag.
      * <p> Specifying this flag may impose a slight performance penalty. */
     static public final String CONFIG_CASE_INSENSITIVE = "(?i)";
@@ -82,7 +82,7 @@ public final class Regex {
     static public final String CONFIG_DOTALL = "(?s)";
     
     /** Embedded flag turns on {@link Pattern#UNICODE_CASE}, which enables Unicode-aware case folding.
-     * <p> When this flag is specified then case-insensitive matching, when enabled by the {@link #CASE_INSENSITIVE} 
+     * <p> When this flag is specified then case-insensitive matching, when enabled by the {@link #CONFIG_CASE_INSENSITIVE} 
      * flag, is done in a manner consistent with the Unicode Standard.  By default, case-insensitive
      * matching assumes that only characters in the US-ASCII charset are being matched.
      * <p> Specifying this flag may impose a performance penalty. */
@@ -133,7 +133,7 @@ public final class Regex {
      *     <td><tt>[\p{IsAlphabetic}\p{IsDigit}]</tt></td></tr>
      * <tr><td><tt>\p{Punct}</tt></td>
      *     <td>A punctuation character</td>
-     *     <td>One of <tt>!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~</tt></td>
+     *     <td>One of <tt>!"#$%&amp;'()*+,-./:;&lt;=>?@[\]^_`{|}~</tt></td>
      *     <td><tt>p{IsPunctuation}</tt></td></tr>
      * <tr><td><tt>\p{Graph}</tt></td>
      *     <td>A visible character</td>
