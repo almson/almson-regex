@@ -378,18 +378,40 @@ public final class Regex {
        * Matches any characters that are not in the specified character class. 
        * Same as {@link #not}.
        * 
-       * <p> Unlike the normal behavior of the {@code ^} metacharacter, 
-       * this method takes care to take the complement of the entire input character class, 
-       * distributing it across unions and intersections. Because there is no built-in operator that does this,
-       * this method uses De Morgan's laws to transform the regular expression.
-       * 
-       * <p> <b>Warning:</b> This method is experimental, because the transformation logic may contain bugs.
-       * 
        * @param characterClass A character class
-       * @return A character class. 
+       * @return A character class. Literally: {@code "[^" + characterClass + "]"} 
        */
       @Charclass public static String 
     charclassComplement (@Charclass String characterClass) {
+        
+            if (getJavaVersion() < 9)
+                return charclassComplementJava8(characterClass);
+            
+            return "[^" + characterClass + "]";
+        }
+    
+      private static int 
+    getJavaVersion() {
+            String version = System.getProperty("java.version");
+            if(version.startsWith("1.")) {
+                version = version.substring(2, 3);
+            } else {
+                int dot = version.indexOf(".");
+                if(dot != -1) { version = version.substring(0, dot); }
+            } return Integer.parseInt(version);
+        }
+    
+      /** 
+       * In Java 8, character class complement is broken 
+       * because it is not distributed across unions and intersections.
+       * This method attempts to fix it using De Morgan's laws to transform the regular expression.
+       * 
+       * <p> <b>Warning:</b> This method is experimental, because the transformation logic may contain bugs.
+       * 
+       * @see https://bugs.openjdk.java.net/browse/JDK-6609854
+       */
+      @Charclass private static String 
+    charclassComplementJava8 (@Charclass String characterClass) {
         
             if (! characterClass.startsWith ("["))
                 characterClass = "[" + characterClass + "]";

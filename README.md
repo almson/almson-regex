@@ -22,6 +22,8 @@ The documentation for the library doesn't replace knowledge of how regular expre
 However, this library succeeds in making your regular expressions easy to read
 by those who do not have expert knowledge. For the best reference on Java regular expressions, see [the java.util.regex.Pattern documentation](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html).
 
+N.B. Java 9 fixed a bug in how negation of nested character classes works. This class implements Java 9+ style negation on Java 8.
+
 Please post your feedback about any unclear documentation or missing functionality.
 
 # Examples
