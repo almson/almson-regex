@@ -9,28 +9,28 @@ import java.util.Objects;
  * 
  * <p> The goals of this library are:
  *   <ul>
- *     <li> Good documentation </li>
  *     <li> Descriptive syntax </li>
- *     <li> Support of all Java 8 regex features </li>
+ *     <li> Good documentation </li>
+ *     <li> Support of all Java regex features </li>
  *   </ul>
  * 
  * <p> The following are *not* goals:
  *   <ul>
- *     <li> Type safety </li>
- *     <li> Brevity (normal regular expressions are very compact--that's why they're hard to read) </li>
- *     <li> Allow user to avoid learning regular expressions (sorry, you're still writing and reading regexes) </li>
+ *     <li> Type safety (keep it simple, use Strings!) </li>
+ *     <li> Extreme brevity (if you want super-compact, illegible regular expressions, write them the old way!) </li>
+ *     <li> Allow user to avoid learning regular expressions (fundamentally, you're still writing and reading regexes, but the descriptive names and good documentation makes it much easier!) </li>
  *   </ul>
  * 
  * <p> This library is based on string operations, 
  * and is easy to use for all, some, or parts of your regular expressions. 
- * An effort is being made to write a compiler plugin based on the Checker Framework to add type-safety 
+ * In the future, we'd like to use the Checker Framework to add type-safety 
  * (for things like character classes, literals, and the possessive/reluctant qualifiers) 
  * without using a class hierarchy.
  * 
- * <p> This library is compiled against Java 5, although it supports all Java 8 regex features, 
- * such as named capturing groups.
+ * <p> This library can be compiled with Java 8, although it supports all Java 17 regex features, 
+ * such as named capturing groups and glyph cluster matchers.
  * 
- * <p> The documentation for the library doesn't replace knowledge of how to write regular expressions.
+ * <p> The documentation for the library doesn't replace knowledge of how regular expressions work.
  * However, this library succeeds in making your regular expressions easy to read by those who are not very familiar
  * with them. For the best reference on Java regular expressions, see {@link Pattern}.
  * 
@@ -198,9 +198,17 @@ public final class Regex {
      * @return Result of {@link Pattern#quote Pattern.quote(string)} */
     @Expr public static String text (@Literal String string) { return Pattern.quote(string); }
     
-    /** Matches the specified Unicode codepoint.
+    /** Matches the specified Unicode character.
+     * @param codepoint Unicode character integer code point. 
+     *    Remember that Java syntax to specify a hexadecimal integer literal is {@code 0x00C0}.
      * @return {@code "\\x{" + Integer.toHexString (codepoint) + "}"} */
-    @Expr public static String text (int codepoint) { return "\\x{" + Integer.toHexString (codepoint) + "}"; }
+    @Expr public static String character (int codepoint) { return "\\x{" + Integer.toHexString (codepoint) + "}"; }
+    
+    /** Matches the specified Unicode character.
+     * @param name <a href="https://www.unicode.org/charts/charindex.html">Unicode character name</a>
+     * @return {@code "\\N{" + name + "}"}
+     * @since Java 9 */
+    @Expr public static String character (String name) { return "\\N{" + name + "}"; }
     
     
     /****************************************************************************************************************
@@ -245,6 +253,13 @@ public final class Regex {
      * However, {@code NEWLINE} is not a character class and cannot participate in character class operations.
      */
     @Expr static public final String NEWLINE = "\\R";
+    
+    /** 
+     * Any Unicode extended grapheme cluster.
+     * <p>{@code GRAPHEME_CLUSTER} is not a character class and cannot participate in character class operations.
+     * @since Java 9
+     */
+    @Expr static public final String GRAPHEME_CLUSTER = "\\X";
     
     /** 
      * Character class matching any Unicode vertical whitespace character. 
@@ -468,6 +483,9 @@ public final class Regex {
     static public final String END_BOUNDARY = "$";
     /** A word boundary. */
     static public final String WORD_BOUNDARY = "\\b";
+    /** A Unicode extended grapheme cluster boundary. 
+     * @since Java 9 */
+    static public final String GRAPHEME_CLUSTER_BOUNDARY = "\\b";
     /** A non-word boundary. */
     static public final String NON_WORD_BOUNDARY = "\\B";
     /** The beginning of the input. */
