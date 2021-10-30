@@ -3,7 +3,7 @@
 
     <groupId>net.almson</groupId>
     <artifactId>almson-regex</artifactId>
-    <version>1.4</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <name>almson-regex</name>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -41,7 +41,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadoc</id>
@@ -78,16 +78,4 @@
             </plugin>
         </plugins>
     </build>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>almson-maven-snapshots</name>
-            <url>https://maven.almson.net/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-        <repository>
-            <id>central</id>
-            <name>almson-maven-releases</name>
-            <url>https://maven.almson.net/artifactory/libs-release-local</url>
-        </repository>
-    </distributionManagement>
 </project>
