@@ -31,110 +31,70 @@ Please post your feedback about any unclear documentation or missing functionali
 ### Match leading or trailiing whitespace:
 
 ```java
-String pattern = "^[ \t]+|[ \t]+$";
+String regex = "^[ \t]+|[ \t]+$"
 ```
 
 becomes:
 
 ```java
-String pattern = either (sequence (START_BOUNDARY, oneOrMore (HORIZONTAL_WHITESPACE)),
-        sequence (oneOrMore (HORIZONTAL_WHITESPACE), END_BOUNDARY));
+String regex = 
+    either(sequence(START_BOUNDARY, oneOrMore(HORIZONTAL_WHITESPACE)),
+           sequence(oneOrMore(HORIZONTAL_WHITESPACE), END_BOUNDARY))
 ```
 
 but since `sequence` simply does string concatenation, we can also write:
 
 ```java
-String pattern = either (START_BOUNDARY + oneOrMore (HORIZONTAL_WHITESPACE),
-        oneOrMore (HORIZONTAL_WHITESPACE) + END_BOUNDARY);
+either(START_BOUNDARY + oneOrMore(HORIZONTAL_WHITESPACE),
+       oneOrMore(HORIZONTAL_WHITESPACE) + END_BOUNDARY)
 ```
 
 ### Match an IP address (simple version):
 
 ```java
-String ipAddressPattern = "\\b(\\d{1,3}\\.){3}\\d{1,3}\\b";
+"\\b(\\d{1,3}\\.){3}\\d{1,3}\\b"
 ```
 
 becomes:
 
 ```java
-String ipAddressPattern = WORD_BOUNDARY + exactly(3, between(1, 3, DIGIT) + text(".")) + between (1, 3, DIGIT) + WORD_BOUNDARY
+WORD_BOUNDARY +
+exactly(3, between(1, 3, DIGIT) + text(".")) +
+between(1, 3, DIGIT) +
+WORD_BOUNDARY
 ```
 
 ### Match an email address (simple version):
 
 ```java
-String emailAddressPattern = "\\b(<user>[a-zA-Z0-9._%+-]+)@(?<domain>[A-Z0-9.-]+\.\\p{L}{2,})\\b";
+"\\b(<user>[a-zA-Z0-9._%+-]+)@(?<domain>[A-Z0-9.-]+\.\\p{L}{2,})\\b"
 ```
 
 becomes:
 
 ```java
-String emailAddressPattern
-        = WORD_BOUNDARY
-            + namedGroup ("user"
-                    , oneOrMore (charclassUnion (LETTER, DIGIT, charclass ('.', '_', '%', '+', '-'))))
-            + text ("@")
-            + namedGroup ("domain"
-                    , oneOrMore (charclassUnion (LETTER, DIGIT, charclass ('.', '-')))
-                    + text (".")
-                    + atLeast (2, LETTER))
-            + WORD_BOUNDARY;
-```
-
-and is demonstrated by:
-
-```java
-  @Test public void
-exampleEmailAddress() {
-
-        Pattern pattern = Pattern.compile (emailAddressPattern);
-
-        Matcher matcher = pattern.matcher ("An email address\njohn@acme.com");
-
-        assertTrue (matcher.find());
-
-        assertEquals ("john@acme.com", matcher.group());
-        assertEquals ("john", matcher.group("user"));
-        assertEquals ("acme.com", matcher.group("domain"));
-
-        assertFalse (matcher.find());
-    }
+WORD_BOUNDARY + 
+namedGroup("user", 
+           oneOrMore(charclassUnion(LETTER, DIGIT, charclass('.', '_', '%', '+', '-')))) + 
+text("@") + 
+namedGroup("domain", 
+           oneOrMore(charclassUnion(LETTER, DIGIT, charclass('.', '-'))) + 
+text(".") + 
+atLeast(2, LETTER)) + 
+WORD_BOUNDARY
 ```
 
 ### Select consecutive duplicates from a comma-delimited list
 
 ```java
-String duplicatedItemPattern = (?<=,|^)([^,]*)(,\1)+(?=,|$)
+"(?<=,|^)([^,]*)(,\1)+(?=,|$)"
 ```
 
 becomes:
 
 ```java
-String duplicatedItemPattern
-        = precededBy (either (START_BOUNDARY, text (",")))
-            + group (zeroOrMore (charclassComplement (charclass (','))))
-            + oneOrMore (text (",") + backreference (1))
-            + followedBy (either (text (","), END_BOUNDARY));
-```
-
-and is demonstrated by:
-
-```java
-  @Test public void
-exampleDuplicates() {
-
-        Pattern pattern = Pattern.compile (duplicatedItemPattern);
-
-        Matcher matcher = pattern.matcher ("dog,cat,cat,tree,apple,tree,tree,tree");
-
-        assertTrue (matcher.find());
-
-        assertEquals ("cat", matcher.group(1));
-
-        assertTrue (matcher.find());
-
-        assertEquals ("tree", matcher.group(1));
-
-        assertFalse (matcher.find());
-    }
+precededBy (either (START_BOUNDARY, text (","))) + 
+group (zeroOrMore(charclassComplement(charclass(',')))) + 
+oneOrMore (text(",") + backreference(1)) + 
+followedBy (either (text(","), END_BOUNDARY))
 ```
