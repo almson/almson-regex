@@ -14,24 +14,19 @@ The following are *not* goals:
 - Extreme brevity (if you want super-compact, illegible regular expressions, write them the old way!)
 - Allow user to avoid learning regular expressions (fundamentally, you're still writing and reading regexes, but the descriptive names and good documentation makes it much easier!)
 
-`almson-regex` is based on string operations, and is easy to use for all, some, or parts of your regular expressions. In the future, we'd like to use the Checker Framework to add type-safety (for things like character classes, literals, and the possessive/reluctant qualifiers) without using a class heirarchy.
-
-`almson-regex` can be compiled with Java 8, although it supports all Java 17 regex features, such as named capturing groups and glyph cluster matchers.
+`almson-regex` is based on string operations, and is easy to use for all, some, or parts of your regular expressions.
+`almson-regex` is compiled with Java 8 and supports all Java 17 regex features, such as named capturing groups and glyph cluster matchers.
 
 The documentation for the library doesn't replace knowledge of how regular expressions work. 
 However, this library succeeds in making your regular expressions easy to read
 by those who do not have expert knowledge. For the best reference on Java regular expressions, see [the java.util.regex.Pattern documentation](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html).
-
-N.B. Java 9 fixed a bug in how negation of nested character classes works. This class implements Java 9+ style negation on Java 8.
-
-Please post your feedback about any unclear documentation or missing functionality.
 
 # Installation with Maven
 
     <dependency>
         <groupId>net.almson</groupId>
         <artifactId>almson-regex</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
     </dependency>
 
 # Examples

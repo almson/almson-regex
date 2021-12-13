@@ -375,11 +375,17 @@ public final class Regex {
         }
     
       /** 
-       * Matches any characters that are not in the specified character class. 
-       * Same as {@link #not}.
+       * Matches any characters that are not in the specified character class.
+       * 
+       * <p> Prior to Java 9, the {@code [^ ... ]} syntax would not
+       * distribute the complement across unions and intersections.
+       * On these older versions of Java, 
+       * this method takes care to take the complement of the entire input character class
+       * by using De Morgan's laws to transform the regular expression.
        * 
        * @param characterClass A character class
-       * @return A character class. Literally: {@code "[^" + characterClass + "]"} 
+       * @return A character class. Literally (on Java 9+): {@code "[^" + characterClass + "]"}, 
+       *         and a more involved operation on older Java
        */
       @Charclass public static String 
     charclassComplement (@Charclass String characterClass) {
@@ -439,23 +445,6 @@ public final class Regex {
         }
     
       /** 
-       * Matches any characters that are not in the specified character class.
-       * Same as {@link #charclassComplement}.
-       * 
-       * <p> Unlike the normal behavior of the {@code ^} metacharacter, 
-       * this method takes care to take the complement of the entire input character class, 
-       * distributing it across unions and intersections. Because there is no built-in operator that does this,
-       * this method uses De Morgan's laws to transform the regular expression.
-       * 
-       * <p> <b>Warning:</b> This method is experimental, because the transformation logic may contain bugs.
-       * 
-       * @param characterClass A character class
-       * @return A character class. 
-       */
-      @Charclass public static String 
-    not (@Charclass String characterClass) { return charclassComplement (characterClass); }
-    
-      /** 
        * Matches any of the characters that are in any of the specified character classes.
        * 
        * <p> Example to match 'a' or a digit: <blockquote>{@code charclassUnion (charclass ('a'), DIGIT)}</blockquote>
@@ -491,7 +480,7 @@ public final class Regex {
       @Charclass public static String 
     charclassSubtraction (@Charclass String charclass1, @Charclass String charclass2) { 
         
-            return charclassIntersection (charclass1, not (charclass2)); 
+            return charclassIntersection (charclass1, charclassComplement (charclass2)); 
         }
     
     

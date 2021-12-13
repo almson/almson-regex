@@ -16,7 +16,7 @@ public class RegexTest {
       @Test public void
     example1 () {
         
-            test (reluctantly (between (1, 3, not (charclass (' ')))) + followedBy (oneOrMore(" "))
+            test (reluctantly (between (1, 3, charclassComplement (charclass (' ')))) + followedBy (oneOrMore(" "))
                  ,"A test of many words"
                  ,"A", "est", "of", "any");
         }
@@ -32,7 +32,7 @@ public class RegexTest {
       @Test public void
     example3 () {
         
-            test (not (charclassIntersection ("\\s", charclass (' ')))
+            test (charclassComplement (charclassIntersection ("\\s", charclass (' ')))
                  ," \na"
                  ,"\n", "a");
         }
