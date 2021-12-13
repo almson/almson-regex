@@ -26,6 +26,14 @@ N.B. Java 9 fixed a bug in how negation of nested character classes works. This 
 
 Please post your feedback about any unclear documentation or missing functionality.
 
+# Installation with Maven
+
+    <dependency>
+        <groupId>net.almson</groupId>
+        <artifactId>almson-regex</artifactId>
+        <version>1.5.0</version>
+    </dependency>
+
 # Examples
 
 ### Match leading or trailiing whitespace:

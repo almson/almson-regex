@@ -3,16 +3,41 @@
 
     <groupId>net.almson</groupId>
     <artifactId>almson-regex</artifactId>
-    <version>1.5</version>
+    <version>1.5.0</version>
     <packaging>jar</packaging>
 
-    <name>almson-regex</name>
-    <url>http://maven.apache.org</url>
+    <name>Almson Regex</name>
+    <url>https://github.com/almson/almson-regex</url>
+    <description>
+        almson-regex is a simple library for writing _readable_ regular expressions.
+    </description>
+    
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <inceptionYear>2014</inceptionYear>
+    
+    <scm>
+        <url>https://github.com/almson/almson-regex</url>
+        <connection>scm:git:git://github.com/almson/almson-regex.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/almson/almson-regex.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>almson</id>
+            <name>Aleksandr Dubinsky</name>
+        </developer>
+    </developers>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.compile.on.save>none</netbeans.compile.on.save>
-        <netbeans.hint.licensePath>${project.basedir}/licenseheader.txt</netbeans.hint.licensePath>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -76,6 +101,42 @@
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
